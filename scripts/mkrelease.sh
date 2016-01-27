@@ -1,0 +1,10 @@
+#!/bin/sh
+
+GIT_SHA1=`(git show-ref --head --hash=8 2> /dev/null || echo 00000000) | head -n1`
+BUILD_ID=`uname -n`"-"`date +%s`
+
+test -f src/release.h || touch src/release.h
+(cat src/release.h | grep SHA1 | grep $GIT_SHA1) && exit 0
+echo "#define Q_GIT_SHA1 \"$GIT_SHA1\"" > src/release.h
+echo "#define Q_BUILD_ID \"$BUILD_ID\"" >> src/release.h
+touch src/release.c
