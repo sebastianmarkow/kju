@@ -12,6 +12,8 @@ addons:
   apt:
     packages:
       - build-essential
+      - clang-format
+      - valgrind
 
 script:
-  - make
+  - make -j4
