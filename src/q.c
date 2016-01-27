@@ -2,8 +2,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define QPATH ".q"
+#define QPATHENV "QPATH"
+
 static void usage(void) {
 	printf("Usage: q\n");
+}
+
+char* getQueuePath(void) {
+	char *path = getenv(QPATHENV);
+	if (path) {
+		return path;
+	}
+
+	char *home = getenv("HOME");
+	if (!home) {
+		return path;
+	}
+
+	path = (char*) realloc(path, sizeof(char) * 500);
+	snprintf(path, 300, "%s/%s", home, QPATH);
+
+	return path;
 }
 
 int main(int argc, char **argv) {
@@ -21,6 +41,14 @@ int main(int argc, char **argv) {
 		usage();
 		exit(1);
 	}
+
+	char* q_path = getQueuePath();
+
+	if (!q_path) {
+		printf("Error: \n");
+	}
+
+	printf("%s\n", q_path);
 
 	return 0;
 }
