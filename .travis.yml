@@ -6,9 +6,7 @@ os:
 
 compiler:
   - clang
-  - clang-3.6
   - gcc
-  - gcc-5
 
 addons:
   apt:
