@@ -1,6 +1,6 @@
 STD?=-std=c99
 WARN?=-Wall -Wextra -pedantic
-OPT?=-O2
+OPT?=-O2 -Os
 
 CFLAGS?=$(STD) $(WARN) $(OPT)
 LDFLAGS?=

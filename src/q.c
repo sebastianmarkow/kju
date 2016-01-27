@@ -1,6 +1,6 @@
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 static void usage(void) {
 	printf("Usage: q\n");
