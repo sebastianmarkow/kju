@@ -13,16 +13,14 @@ int main(int argc, char **argv) {
 		switch (opt) {
 		default:
 			goto usage;
-
 		}
 	}
 
 	if (argc <= 1) {
-usage:
+	usage:
 		usage();
 		exit(1);
 	}
-
 
 	return 0;
 }
