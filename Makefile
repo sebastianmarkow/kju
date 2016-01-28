@@ -1,9 +1,13 @@
-STD?=-std=c99
-WARN?=-Wall -Wextra -pedantic
-OPT?=-O2 -Os
+STD:=-std=c99
+WARN:=-Wall -Wextra -Werror -pedantic
+OPT:=-O2 -Os
 
 CFLAGS?=$(STD) $(WARN) $(OPT)
 LDFLAGS?=
+
+ifeq ($(debug), 1)
+	CFLAGS+=-g -ggdb -DPRINT_DEBUG=1
+endif
 
 BIN:=q
 SRC:=q.c release.c
