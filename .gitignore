@@ -1,6 +1,7 @@
 # Binaries
 q
 _obj
+src/release.*
 
 # Object files
 *.o
