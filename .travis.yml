@@ -17,3 +17,4 @@ addons:
 
 script:
   - make -j4
+  - sh -c ./scripts/tests.sh
