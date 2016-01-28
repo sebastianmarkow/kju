@@ -1,9 +1,9 @@
 STD:=-std=c99
 WARN:=-Wall -Wextra -Werror -pedantic
-OPT:=-O2 -Os
+OPT:=-O2 -Os -flto
 
 CFLAGS?=$(STD) $(WARN) $(OPT)
-LDFLAGS?=
+LDFLAGS?=-flto
 
 ifeq ($(debug), 1)
 	CFLAGS+=-g -ggdb -DPRINT_DEBUG=1
