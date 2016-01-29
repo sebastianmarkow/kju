@@ -21,13 +21,11 @@ matrix:
 addons:
   apt:
     packages:
-      - clang-format
       - valgrind
 
 before_install:
     - echo "$TRAVIS_OS_NAME"
     - brew update               || true;
-      brew install clang-format || true;
       brew install valgrind     || true;
 
 script:
