@@ -12,6 +12,13 @@ env:
   - debug=1
   - debug=0
 
+addons:
+  apt:
+    sources:
+      - llvm-toolchain-precise-3.7
+    packages:
+      - clang-3.7
+
 script:
   - make -j2
   - sh -c ./scripts/tests.sh
