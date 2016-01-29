@@ -10,14 +10,11 @@ compiler:
 
 env:
   - debug=1
-  - debug=0
 
-addons:
-  apt:
-    sources:
-      - llvm-toolchain-precise-3.7
-    packages:
-      - clang-3.7
+matrix:
+  exclude:
+    - os: osx
+      compiler: gcc
 
 script:
   - make -j2
