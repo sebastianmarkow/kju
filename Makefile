@@ -9,8 +9,8 @@ ifeq ($(debug), 1)
 	CFLAGS+=-g -ggdb -DPRINT_DEBUG=1
 endif
 
-BIN:=q
-SRC:=q.c release.c
+BIN:=kju
+SRC:=kju.c release.c
 OBJDIR:=_obj
 OBJ:=$(patsubst %.c,$(OBJDIR)/%.o,$(SRC))
 

@@ -22,8 +22,8 @@
 #endif
 #define ERROR(...) fprintf(stderr, __VA_ARGS__)
 
-const char *Q_DEFAULT_PATH = ".q";
-const char *Q_PATH_ENV = "QPATH";
+const char *KJU_PATH = ".kju";
+const char *KJU_PATH_ENV = "KJUPATH";
 const char *HOME_PATH_ENV = "HOME";
 
 struct child_proc {
@@ -37,14 +37,14 @@ static void usage(void) {
 	printf("Usage: q\n");
 }
 
-char *getQPath(void) {
+char *getKJUPath(void) {
 	char *path = malloc(sizeof(char) * 500);
 	if (!path) {
 		ERROR("could not allocate memory");
 		return NULL;
 	}
 
-	char *custom_path = getenv(Q_PATH_ENV);
+	char *custom_path = getenv(KJU_PATH_ENV);
 	if (custom_path) {
 		strcpy(path, custom_path);
 		DEBUG("return custom"); // XXX(SK)
@@ -57,14 +57,14 @@ char *getQPath(void) {
 		return NULL;
 	}
 
-	sprintf(path, "%s/%s", home_path, Q_DEFAULT_PATH);
+	sprintf(path, "%s/%s", home_path, KJU_PATH);
 	DEBUG("return default"); // XXX(SK)
 	return path;
 }
 
 int main(int argc, char **argv) {
 	int opt = 0;
-	int qpath_fd = 0;
+	int kjupath_fd = 0;
 	int pipe_fd[2];
 	struct timeval timestamp;
 	struct child_proc *child;
@@ -84,29 +84,29 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	char *qpath = getQPath();
-	if (!qpath) {
+	char *kjupath = getKJUPath();
+	if (!kjupath) {
 		ERROR("Could not determin queue path");
 		return 1;
 	}
 
-	printf("path: %s\n", qpath);
+	printf("path: %s\n", kjupath);
 
-	if (mkdir(qpath, 0700) < 0) {
+	if (mkdir(kjupath, 0700) < 0) {
 		if (errno != EEXIST) {
 			perror("Could not create queue path");
 			return 200; // XXX(SK): Error code?
 		}
 	}
 
-	qpath_fd = open(qpath, O_RDONLY);
-	if (qpath_fd < 0) {
+	kjupath_fd = open(kjupath, O_RDONLY);
+	if (kjupath_fd < 0) {
 		perror("Could not open queue path");
 		return 200; // XXX(SK): Error code?
 	}
 
-	free(qpath);
-	qpath = NULL;
+	free(kjupath);
+	kjupath = NULL;
 
 	if (pipe(pipe_fd) < 0) {
 		perror("Could not init pipe");
@@ -120,16 +120,20 @@ int main(int argc, char **argv) {
 		child->pid = pid;
 		child->timestamp = (int64_t)timestamp.tv_sec*1000 + timestamp.tv_usec/1000;
 
+
 		printf("child pid: %d\n", child->pid);
 		printf("child timestamp: %ld\n", (long) child->timestamp);
+
+		sleep(100);
 
 		free(child);
 		child = NULL;
 	} else {
 		printf("parent pid: %d\n", pid);
+		sleep(100);
 	}
 
-	close(qpath_fd);
+	close(kjupath_fd);
 
 	return 0;
 }

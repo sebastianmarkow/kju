@@ -1,5 +1,5 @@
 #include "release.h"
 
-char *qGitSHA1(void) {
-	return Q_GIT_SHA1;
+char *kjuGitSHA1(void) {
+	return KJU_GIT_SHA1;
 }
