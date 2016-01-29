@@ -1,22 +1,31 @@
 language: c
 
-os:
-  - linux
-  - osx
-
 compiler:
   - clang
   - gcc
 
-addons:
-  apt:
-    packages:
-      - build-essential
-      - clang-format
-      - valgrind
+env:
+  - debug=1
+  - debug=0
+
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          packages:
+            - build-essential
+            - clang-format
+            - valgrind
+    - os: osx
+      before_install:
+        - brew update
+        - brew install make
+        - brew install clang-format
+        - brew install valgrind
 
 script:
-  - make -j4
+  - make -j2
   - sh -c ./scripts/tests.sh
 
 notifications:
