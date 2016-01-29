@@ -18,3 +18,8 @@ addons:
 script:
   - make -j4
   - sh -c ./scripts/tests.sh
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always

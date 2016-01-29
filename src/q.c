@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
 		child->timestamp = (int64_t)timestamp.tv_sec*1000 + timestamp.tv_usec/1000;
 
 		printf("child pid: %d\n", child->pid);
-		printf("child timestamp: %lld\n", child->timestamp);
+		printf("child timestamp: %ld\n", (long) child->timestamp);
 
 		free(child);
 		child = NULL;
