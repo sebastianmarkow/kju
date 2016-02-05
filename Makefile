@@ -10,7 +10,7 @@ ifeq ($(debug), 1)
 endif
 
 BIN:=kju
-SRC:=kju.c release.c
+SRC:=release.c kju.c
 OBJDIR:=_obj
 OBJ:=$(patsubst %.c,$(OBJDIR)/%.o,$(SRC))
 
