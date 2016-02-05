@@ -210,12 +210,12 @@ int main(int argc, char **argv) {
 			exit(EXIT_FAILURE); // XXX(SK): error code?
 		}
 
-		fchmod(lockfd, 0600);
-		if (WIFEXITED(cstatus)) {
-			// TODO(SK): implementation needed
-		} else {
-			// TODO(SK): implementation needed
-		}
+		/* fchmod(lockfd, 0600); */
+		/* if (WIFEXITED(cstatus)) { */
+		/* 	// TODO(SK): implementation needed */
+		/* } else { */
+		/* 	// TODO(SK): implementation needed */
+		/* } */
 
 		exit(EXIT_SUCCESS);
 	}
