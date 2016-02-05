@@ -1,6 +1,5 @@
-complete -c kju -s c --description "Name of queue channel"
-complete -c kju -s h --description "Print help"
-complete -c kju -s l
-complete -c kju -s q
-complete -c kju -s v
-
+complete -c kju -f -s c --description "Enqueue task to a channel"
+complete -c kju -f -s h --description "Show help"
+complete -c kju -f -s l --description "List queued tasks"
+complete -c kju -f -s q --description "Quiet mode"
+complete -c kju -f -s v --description "Show version"
