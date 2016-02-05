@@ -72,7 +72,7 @@ char *kju_Path(void) {
 }
 
 int main(int argc, char **argv) {
-	bool lflag = false, rflag = false, qflag = false, vflag = false;
+	bool qflag = false, vflag = false;
 	char *cvalue = NULL;
 	char *path = NULL;
 	char lock[128];
@@ -88,17 +88,11 @@ int main(int argc, char **argv) {
 	gettimeofday(&timestamp, NULL);
 	ms = (int64_t)timestamp.tv_sec * 1000 + timestamp.tv_usec / 1001;
 
-	while ((opt = getopt(argc, argv, "+c:hlrqv")) != -1) {
+	while ((opt = getopt(argc, argv, "+c:hqv")) != -1) {
 		switch (opt) {
 		case 'c':
 			// TODO(SK): alphanumeric only
 			cvalue = optarg;
-			break;
-		case 'l':
-			lflag = true;
-			break;
-		case 'r':
-			rflag = true;
 			break;
 		case 'q':
 			qflag = true;
@@ -175,7 +169,9 @@ int main(int argc, char **argv) {
 		pid_t pid = -1;
 
 		close(pipefd[1]);
-		read(pipefd[0], &pid, sizeof(pid));
+		if (read(pipefd[0], &pid, sizeof(pid)) < 0) {
+			perror("read");
+		}
 
 		if (!qflag) {
 			fprintf(stdout, "%d\n", pid);
@@ -196,7 +192,9 @@ int main(int argc, char **argv) {
 		close(1);
 		close(2);
 
-		write(pipefd[1], &cpid, sizeof(cpid));
+		if (write(pipefd[1], &cpid, sizeof(cpid)) < 0) {
+			perror("write");
+		}
 		close(pipefd[1]);
 
 		wait(&cstatus);
