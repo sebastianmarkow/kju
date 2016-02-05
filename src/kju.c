@@ -118,13 +118,15 @@ int main(int argc, char **argv) {
 		exit(EXIT_SUCCESS);
 	}
 
+	if (!cvalue) {
+		cvalue = KJU_DEFCHAN;
+	}
+
 	path = kju_Path();
 	if (!path) {
 		ERROR("could not determine kju path");
 		exit(EXIT_SUCCESS);
 	}
-
-	DEBUG("kju: %s\n", path);
 
 	if (mkdir(path, 0700) < 0) {
 		if (errno != EEXIST) {
@@ -133,17 +135,12 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if (!cvalue) {
-		cvalue = KJU_DEFCHAN;
-	}
 	path = (char *)realloc(path, strlen(cvalue) + 1);
 	if (!path) {
 		ERROR("could not allocate");
 		exit(EXIT_FAILURE); // XXX(SK): Error code? (perror)
 	}
 	sprintf(path, "%s%s%s", path, PATH_SEPARATOR, cvalue);
-
-	DEBUG("channel: %s\n", path);
 
 	if (mkdir(path, 0700) < 0) {
 		if (errno != EEXIST) {
