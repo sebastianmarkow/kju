@@ -36,7 +36,7 @@ void kju_PrintUsage(void) {
 }
 
 void kju_PrintVersion(void) {
-	fprintf(stdout, "kju %s (%s)\n", KJU_VERSION, kju_GitSHA1());
+	fprintf(stdout, "kju %s (build %s)\n", KJU_VERSION, kju_GitSHA1());
 }
 
 char *kju_Path(void) {
@@ -135,7 +135,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	path = (char *)realloc(path, strlen(cvalue) + 1);
+	path = (char *)realloc(path, strlen(path) + strlen(cvalue) + 2);
 	if (!path) {
 		ERROR("could not allocate");
 		exit(EXIT_FAILURE); // XXX(SK): Error code? (perror)
@@ -171,8 +171,14 @@ int main(int argc, char **argv) {
 		}
 
 		if (!qflag) {
-			fprintf(stdout, "%d\n", pid);
+			char pid_str[32];
+			sprintf(pid_str, "%d\n", pid);
+			write(1, pid_str, sizeof(pid_str));
 		}
+
+		close(0);
+		close(1);
+		close(2);
 
 		exit(EXIT_SUCCESS);
 	}
@@ -189,9 +195,6 @@ int main(int argc, char **argv) {
 		close(1);
 		close(2);
 
-		if (write(pipefd[1], &cpid, sizeof(cpid)) < 0) {
-			perror("write");
-		}
 		close(pipefd[1]);
 
 		wait(&cstatus);
@@ -201,29 +204,35 @@ int main(int argc, char **argv) {
 		lockfd = open(lock, O_RDWR | O_APPEND);
 		if (lockfd < 0) {
 			syslog(LOG_ERR, "could not open lockfile %s", lock);
-			perror("open");
+			// TODO(SK): perror to char*
 			exit(EXIT_FAILURE); // XXX(SK): error code?
 		}
 
-		/* fchmod(lockfd, 0600); */
-		/* if (WIFEXITED(cstatus)) { */
-		/* 	// TODO(SK): implementation needed */
-		/* } else { */
-		/* 	// TODO(SK): implementation needed */
-		/* } */
+		chmod(lock, 0600);
+		if (WIFEXITED(cstatus)) {
+			// TODO(SK): implementation needed
+		} else {
+			// TODO(SK): implementation needed
+		}
 
 		exit(EXIT_SUCCESS);
 	}
 
-	close(pipefd[1]);
-
 	sprintf(lock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ms,
 	        getpid());
+
 	lockfd = open(lock, O_CREAT | O_EXCL | O_RDWR | O_APPEND, 0600);
 	if (lockfd < 0) {
 		perror("open");
 		exit(EXIT_FAILURE);
 	}
+
+	pid_t ppid = getpid();
+	if (write(pipefd[1], &ppid, sizeof(ppid)) < 0) {
+		perror("write");
+		exit(EXIT_FAILURE);
+	}
+	close(pipefd[1]);
 
 	exit(EXIT_SUCCESS);
 }
