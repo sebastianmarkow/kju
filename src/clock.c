@@ -2,7 +2,7 @@
 
 #include <time.h>
 
-#include "time.h"
+#include "clock.h"
 
 #ifdef __MACH__
 /* ******** */

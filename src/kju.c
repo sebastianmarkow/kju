@@ -16,7 +16,7 @@
 #include <unistd.h>
 
 #include "kju.h"
-#include "time.h"
+#include "clock.h"
 
 #ifdef PRINT_DEBUG
 #define DEBUG(...) fprintf(stdout, __VA_ARGS__)
