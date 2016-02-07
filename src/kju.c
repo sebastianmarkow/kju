@@ -31,14 +31,14 @@ static char *KJU_PATH = ".kju";
 static char *KJU_PATHENV = "KJUPATH";
 static char *KJU_DEFCHAN = "default";
 
-void kju_PrintUsage(void) { fprintf(stdout, "Usage: kju\n"); }
+void print_usage(void) { fprintf(stdout, "Usage: kju\n"); }
 
-void kju_PrintVersion(void)
+void print_version(void)
 {
 	fprintf(stdout, "kju %s (build %s)\n", KJU_VERSION, kju_GitSHA1());
 }
 
-char *kju_Path(void)
+char *kju_path(void)
 {
 	char *ppath, *hpath;
 	static char *path = NULL;
@@ -82,6 +82,7 @@ int main(int argc, char **argv)
 	int pipefd[2];
 	int64_t ns;
 	pid_t cpid;
+	struct flock fl;
 	struct timespec timestamp;
 
 	openlog("kju", LOG_PID | LOG_NDELAY, LOG_LOCAL1);
@@ -102,7 +103,7 @@ int main(int argc, char **argv)
 			vflag = true;
 			break;
 		case 'h':
-			kju_PrintUsage();
+			print_usage();
 			exit(EXIT_SUCCESS);
 		default:
 			goto usage;
@@ -110,12 +111,12 @@ int main(int argc, char **argv)
 	}
 	if (argc < 2) {
 	usage:
-		kju_PrintUsage();
+		print_usage();
 		exit(EXIT_FAILURE);
 	}
 
 	if (vflag) {
-		kju_PrintVersion();
+		print_version();
 		exit(EXIT_SUCCESS);
 	}
 
@@ -123,7 +124,7 @@ int main(int argc, char **argv)
 		cvalue = KJU_DEFCHAN;
 	}
 
-	path = kju_Path();
+	path = kju_path();
 	if (!path) {
 		ERROR("could not determine kju path");
 		exit(EXIT_SUCCESS);
@@ -203,34 +204,50 @@ int main(int argc, char **argv)
 
 		wait(&cstatus);
 
-		sprintf(lock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns,
-			cpid);
-		lockfd = open(lock, O_RDWR | O_APPEND);
+		sprintf(lock, "%011" PRIx64 ".%d", ns, cpid);
+		lockfd = openat(pathfd, lock, O_RDWR | O_APPEND);
 		if (lockfd < 0) {
 			syslog(LOG_ERR, "could not open lockfile %s", lock);
 			// TODO(SK): perror to char*
 			exit(EXIT_FAILURE); // XXX(SK): error code?
 		}
 
-		if (WIFEXITED(cstatus)) {
-			// TODO(SK): implementation needed
-		} else {
-			// TODO(SK): implementation needed
-		}
+		// TODO(SK): write exit code
 
 		exit(EXIT_SUCCESS);
 	}
 
-	sprintf(lock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns,
-		getpid());
+	sprintf(lock, ".%011" PRIx64 ".%d", ns, getpid());
 
-	lockfd = open(lock, O_CREAT | O_EXCL | O_RDWR | O_APPEND, 0600);
+	lockfd = openat(pathfd, lock, O_CREAT | O_EXCL | O_RDWR | O_APPEND, 0600);
 	if (lockfd < 0) {
 		perror("open");
 		exit(EXIT_FAILURE);
 	}
 
 	pid_t ppid = getpid();
+
+	fl.l_type   = F_WRLCK;
+	fl.l_whence = SEEK_SET;
+	fl.l_start  = 0;
+	fl.l_len    = 0;
+	fl.l_len    = ppid;
+
+	if (fcntl(lockfd, F_SETLK, &fl) < 0) {
+		perror("fcntl");
+		exit(EXIT_FAILURE);
+	}
+
+	renameat(pathfd, lock, pathfd, lock+1);
+
+	fsync(pathfd);
+
+	if (dup2(lockfd, 2) < 0 ||
+	    dup2(lockfd, 1) < 0) {
+		perror("dup2");
+		exit(222);
+	}
+
 	if (write(pipefd[1], &ppid, sizeof(ppid)) < 0) {
 		perror("write");
 		exit(EXIT_FAILURE);
