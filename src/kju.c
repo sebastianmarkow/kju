@@ -18,12 +18,17 @@
 #include "kju.h"
 #include "clock.h"
 
-#ifdef PRINT_DEBUG
-#define DEBUG(...) fprintf(stdout, __VA_ARGS__)
-#else
-#define DEBUG(...)
+#ifndef PRINT_DEBUG
+#define PRINT_DEBUG 0
 #endif
-#define ERROR(...) fprintf(stderr, __VA_ARGS__)
+
+#define DEBUG(fmt, ...)                                                        \
+	do {                                                                   \
+		if (PRINT_DEBUG) {                                             \
+			fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__,          \
+				__LINE__, __func__, __VA_ARGS__);              \
+		}                                                              \
+	} while (0)
 
 #define PATH_SEPARATOR "/"
 
@@ -35,7 +40,7 @@ void print_usage(void) { fprintf(stdout, "Usage: kju\n"); }
 
 void print_version(void)
 {
-	fprintf(stdout, "kju %s (build %s)\n", KJU_VERSION, kju_GitSHA1());
+	fprintf(stdout, "kju %s (build %s)\n", KJU_VERSION, kju_gitsha1());
 }
 
 char *kju_path(void)
@@ -85,6 +90,8 @@ int main(int argc, char **argv)
 	struct flock fl;
 	struct timespec timestamp;
 
+	DEBUG("%s\n", "YEAH!");
+
 	openlog("kju", LOG_PID | LOG_NDELAY, LOG_LOCAL1);
 
 	clock_gettime(CLOCK_MONOTONIC, &timestamp);
@@ -126,7 +133,6 @@ int main(int argc, char **argv)
 
 	path = kju_path();
 	if (!path) {
-		ERROR("could not determine kju path");
 		exit(EXIT_SUCCESS);
 	}
 
@@ -139,7 +145,6 @@ int main(int argc, char **argv)
 
 	path = (char *)realloc(path, strlen(path) + strlen(cvalue) + 2);
 	if (!path) {
-		ERROR("could not allocate");
 		exit(EXIT_FAILURE); // XXX(SK): Error code? (perror)
 	}
 	sprintf(path, "%s%s%s", path, PATH_SEPARATOR, cvalue);
