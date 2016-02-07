@@ -4,11 +4,10 @@ OPT:=-O2 -Os
 
 CFLAGS?=$(STD) $(WARN) $(OPT)
 LDFLAGS?=
-LDFLAGS_SUFFIX?=
 
 UNAME := $(shell uname)
 ifneq ($(UNAME), Darwin)
-	LDFLAGS_SUFFIX += -lrt
+	LDFLAGS += -lrt
 endif
 
 ifeq ($(debug), 1)
@@ -28,7 +27,7 @@ release:=$(shell sh -c './scripts/mkrelease.sh')
 all: $(BIN)
 
 $(BIN): $(OBJ)
-	$(CC) $(LDFLAGS) -o $@ $^ $(LDFLAGS_SUFFIX)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(OBJ): $(OBJDIR)
 
