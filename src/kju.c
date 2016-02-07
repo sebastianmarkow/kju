@@ -204,7 +204,8 @@ int main(int argc, char **argv)
 
 		wait(&cstatus);
 
-		sprintf(lock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns, cpid);
+		sprintf(lock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns,
+			cpid);
 		lockfd = open(lock, O_RDWR | O_APPEND);
 		if (lockfd < 0) {
 			syslog(LOG_ERR, "could not open lockfile %s", lock);
@@ -217,7 +218,8 @@ int main(int argc, char **argv)
 		exit(EXIT_SUCCESS);
 	}
 
-	sprintf(lock, "%s%s.%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns, getpid());
+	sprintf(lock, "%s%s.%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns,
+		getpid());
 
 	lockfd = open(lock, O_CREAT | O_EXCL | O_RDWR | O_APPEND, 0600);
 	if (lockfd < 0) {
@@ -227,25 +229,25 @@ int main(int argc, char **argv)
 
 	pid_t ppid = getpid();
 
-	fl.l_type   = F_WRLCK;
+	fl.l_type = F_WRLCK;
 	fl.l_whence = SEEK_SET;
-	fl.l_start  = 0;
-	fl.l_len    = 0;
-	fl.l_len    = ppid;
+	fl.l_start = 0;
+	fl.l_len = 0;
+	fl.l_len = ppid;
 
 	if (fcntl(lockfd, F_SETLK, &fl) < 0) {
 		perror("fcntl");
 		exit(EXIT_FAILURE);
 	}
 
-	char* newlock = NULL;
-	sprintf(newlock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns, getpid());
+	char *newlock = NULL;
+	sprintf(newlock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns,
+		getpid());
 	rename(lock, newlock);
 
 	fsync(pathfd);
 
-	if (dup2(lockfd, 2) < 0 ||
-	    dup2(lockfd, 1) < 0) {
+	if (dup2(lockfd, 2) < 0 || dup2(lockfd, 1) < 0) {
 		perror("dup2");
 		exit(222);
 	}
