@@ -204,8 +204,8 @@ int main(int argc, char **argv)
 
 		wait(&cstatus);
 
-		sprintf(lock, "%011" PRIx64 ".%d", ns, cpid);
-		lockfd = openat(pathfd, lock, O_RDWR | O_APPEND);
+		sprintf(lock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns, cpid);
+		lockfd = open(lock, O_RDWR | O_APPEND);
 		if (lockfd < 0) {
 			syslog(LOG_ERR, "could not open lockfile %s", lock);
 			// TODO(SK): perror to char*
@@ -217,9 +217,9 @@ int main(int argc, char **argv)
 		exit(EXIT_SUCCESS);
 	}
 
-	sprintf(lock, ".%011" PRIx64 ".%d", ns, getpid());
+	sprintf(lock, "%s%s.%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns, getpid());
 
-	lockfd = openat(pathfd, lock, O_CREAT | O_EXCL | O_RDWR | O_APPEND, 0600);
+	lockfd = open(lock, O_CREAT | O_EXCL | O_RDWR | O_APPEND, 0600);
 	if (lockfd < 0) {
 		perror("open");
 		exit(EXIT_FAILURE);
@@ -238,7 +238,9 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	renameat(pathfd, lock, pathfd, lock+1);
+	char* newlock = NULL;
+	sprintf(newlock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns, getpid());
+	rename(lock, newlock);
 
 	fsync(pathfd);
 
