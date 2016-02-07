@@ -16,6 +16,11 @@ ifeq ($(debug), 1)
 	CFLAGS+=-g -ggdb -DPRINT_DEBUG=1
 endif
 
+PREFIX?=/usr/local
+BINDIR?=$(PREFIX)/bin
+MANDIR=$(PREFIX)/share/man
+SHAREDIR?=$(PREFIX)/share
+
 BIN:=kju
 SRC:=release.c time.c kju.c
 OBJDIR:=_obj
@@ -23,6 +28,10 @@ OBJ:=$(patsubst %.c,$(OBJDIR)/%.o,$(SRC))
 
 
 all: $(BIN)
+
+install: all
+	install -m 0755 $(BIN) $(BINDIR)
+	install -m 0644 man/$(BIN:=.1) $(MANDIR)/man1
 
 $(BIN): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
