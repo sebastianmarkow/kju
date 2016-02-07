@@ -1,3 +1,5 @@
+release:=$(shell sh -c './scripts/mkrelease.sh')
+
 STD:=-std=c99
 WARN:=-Wall -Wextra -Werror -pedantic
 OPT:=-O2 -Os
@@ -18,10 +20,6 @@ BIN:=kju
 SRC:=release.c time.c kju.c
 OBJDIR:=_obj
 OBJ:=$(patsubst %.c,$(OBJDIR)/%.o,$(SRC))
-
-release:=$(shell sh -c './scripts/mkrelease.sh')
-
-
 
 
 all: $(BIN)
