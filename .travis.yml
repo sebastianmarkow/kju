@@ -22,6 +22,7 @@ matrix:
 addons:
   apt:
     packages:
+      - glibc
       - valgrind
 
 before_install:

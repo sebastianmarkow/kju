@@ -5,6 +5,13 @@ OPT:=-O2 -Os
 CFLAGS?=$(STD) $(WARN) $(OPT)
 LDFLAGS?=
 
+UNAME := $(shell uname)
+ifeq ($(UNAME), Darwin)
+	CFLAGS += -DNORT
+else
+	LDFLAGS += -lrt
+endif
+
 ifeq ($(debug), 1)
 	CFLAGS+=-g -ggdb -DPRINT_DEBUG=1
 endif
@@ -15,6 +22,8 @@ OBJDIR:=_obj
 OBJ:=$(patsubst %.c,$(OBJDIR)/%.o,$(SRC))
 
 release:=$(shell sh -c './scripts/mkrelease.sh')
+
+
 
 
 all: $(BIN)
