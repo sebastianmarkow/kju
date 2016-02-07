@@ -1,5 +1,4 @@
-#define _POSIX_SOURCE
-#define _POSIX_C_SOURCE 199309L
+#define _POSIX_C_SOURCE 200809L
 
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -17,6 +16,7 @@
 #include <unistd.h>
 
 #include "kju.h"
+#include "time.h"
 
 #ifdef PRINT_DEBUG
 #define DEBUG(...) fprintf(stdout, __VA_ARGS__)
@@ -31,15 +31,15 @@ static char *KJU_PATH = ".kju";
 static char *KJU_PATHENV = "KJUPATH";
 static char *KJU_DEFCHAN = "default";
 
-void kju_PrintUsage(void) {
-	fprintf(stdout, "Usage: kju\n");
-}
+void kju_PrintUsage(void) { fprintf(stdout, "Usage: kju\n"); }
 
-void kju_PrintVersion(void) {
+void kju_PrintVersion(void)
+{
 	fprintf(stdout, "kju %s (build %s)\n", KJU_VERSION, kju_GitSHA1());
 }
 
-char *kju_Path(void) {
+char *kju_Path(void)
+{
 	char *ppath, *hpath;
 	static char *path = NULL;
 
@@ -71,22 +71,23 @@ char *kju_Path(void) {
 	return path;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	bool qflag = false, vflag = false;
 	char *cvalue = NULL;
 	char *path = NULL;
 	char lock[128];
 	int opt = 0;
-	int pipefd[2];
 	int pathfd, lockfd;
-	int64_t ms;
+	int pipefd[2];
+	int64_t ns;
 	pid_t cpid;
-	struct timeval timestamp;
+	struct timespec timestamp;
 
 	openlog("kju", LOG_PID | LOG_NDELAY, LOG_LOCAL1);
 
-	gettimeofday(&timestamp, NULL);
-	ms = (int64_t)timestamp.tv_sec * 1000 + timestamp.tv_usec / 1001;
+	clock_gettime(CLOCK_MONOTONIC, &timestamp);
+	ns = (int64_t) (timestamp.tv_sec * 1000000 + timestamp.tv_nsec);
 
 	while ((opt = getopt(argc, argv, "+c:hqv")) != -1) {
 		switch (opt) {
@@ -202,8 +203,8 @@ int main(int argc, char **argv) {
 
 		wait(&cstatus);
 
-		sprintf(lock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ms,
-		        cpid);
+		sprintf(lock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns,
+			cpid);
 		lockfd = open(lock, O_RDWR | O_APPEND);
 		if (lockfd < 0) {
 			syslog(LOG_ERR, "could not open lockfile %s", lock);
@@ -211,7 +212,6 @@ int main(int argc, char **argv) {
 			exit(EXIT_FAILURE); // XXX(SK): error code?
 		}
 
-		chmod(lock, 0600);
 		if (WIFEXITED(cstatus)) {
 			// TODO(SK): implementation needed
 		} else {
@@ -221,8 +221,8 @@ int main(int argc, char **argv) {
 		exit(EXIT_SUCCESS);
 	}
 
-	sprintf(lock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ms,
-	        getpid());
+	sprintf(lock, "%s%s%011" PRIx64 ".%d", path, PATH_SEPARATOR, ns,
+		getpid());
 
 	lockfd = open(lock, O_CREAT | O_EXCL | O_RDWR | O_APPEND, 0600);
 	if (lockfd < 0) {
