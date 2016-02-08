@@ -4,8 +4,8 @@ STD:=-std=c99
 WARN:=-Wall -Wextra -Werror -pedantic
 OPT:=-O2 -Os
 
-CFLAGS?=$(STD) $(WARN) $(OPT) -flto
-LDFLAGS?=-flto
+CFLAGS?=$(STD) $(WARN) $(OPT)
+LDFLAGS?=
 
 PREFIX?=/usr/local
 BINDIR?=$(PREFIX)/bin
