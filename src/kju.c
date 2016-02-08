@@ -85,7 +85,12 @@ int main(int argc, char **argv)
 	openlog("kju", LOG_PID | LOG_NDELAY, LOG_LOCAL1);
 
 	clock_gettime(CLOCK_MONOTONIC, &timestamp);
-	ns = (int64_t)(timestamp.tv_sec * 1000000 + timestamp.tv_nsec);
+	ns = (int64_t) timestamp.tv_sec * 1000000000 + timestamp.tv_nsec;
+
+
+	DEBUG("%lu s\n", timestamp.tv_sec);
+	DEBUG("%lu ns\n", timestamp.tv_nsec);
+	DEBUG("%012" PRIx64 "\n", ns);
 
 	while ((opt = getopt(argc, argv, "+c:hqv")) != -1) {
 		switch (opt) {
