@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 		}
 
 		if (!qflag) {
-			char pid_str[32];
+			char pid_str[32] = {0};
 			sprintf(pid_str, "%d\n", pid);
 			if (write(1, pid_str, sizeof(pid_str)) < 0) {
 				perror("write");

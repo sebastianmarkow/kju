@@ -39,7 +39,7 @@ $(BIN): $(OBJ)
 $(OBJ): $(OBJDIR)
 
 $(OBJDIR):
-	@mkdir -p $@
+	mkdir -p $@
 
 $(OBJDIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -49,8 +49,8 @@ check:
 
 .PHONY: clean
 clean:
-	@rm -rf $(BIN)
-	@rm -rf $(OBJDIR)
+	rm -rf $(BIN)
+	rm -rf $(OBJDIR)
 
 vpath %.c src
 vpath %.h src
