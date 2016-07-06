@@ -1,6 +1,5 @@
 # Binaries
-kju
-_obj
+build
 src/release.h
 
 # Object files

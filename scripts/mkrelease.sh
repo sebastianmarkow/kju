@@ -1,6 +1,6 @@
 #!/bin/sh
 
-GIT_SHA1=`(git show-ref --head --hash=8 2> /dev/null || echo 00000000) | head -n1`
+GIT_SHA1=`(git rev-parse --short HEAD 2> /dev/null || echo 00000000) | head -n1`
 BUILD_ID=`uname -n`"-"`date +%s`
 
 test -f src/release.h || touch src/release.h
