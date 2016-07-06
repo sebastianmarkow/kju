@@ -9,12 +9,14 @@ LDFLAGS?=
 
 PREFIX?=/usr/local
 BINDIR?=$(PREFIX)/bin
-MANDIR=$(PREFIX)/share/man
+MANDIR?=$(PREFIX)/share/man
 SHAREDIR?=$(PREFIX)/share
+
+BUILDDIR?=build
+OBJDIR:=$(BUILDDIR)/_obj
 
 BIN:=kju
 SRC:=release.c clock.c kju.c
-OBJDIR:=_obj
 OBJ:=$(patsubst %.c,$(OBJDIR)/%.o,$(SRC))
 
 UNAME := $(shell uname)
@@ -26,31 +28,31 @@ ifeq ($(debug), 1)
 	CFLAGS+=-g -ggdb -DPRINT_DEBUG=1
 endif
 
+.DEFAULT_GOAL: help
+.PHONE: help
+help:
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "%-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-all: $(BIN)
+build: $(BUILDDIR)/$(BIN) ## Build binary
 
-install: all
-	install -m 0755 $(BIN) $(BINDIR)
+install: build ## Install binary
+	install -m 0755 $(BUILDDIR)/$(BIN) $(BINDIR)
 	install -m 0644 man/$(BIN:=.1) $(MANDIR)/man1
 
-$(BIN): $(OBJ)
+$(BUILDDIR)/$(BIN): $(OBJ)
+	@mkdir -p $(BUILDDIR)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-$(OBJ): $(OBJDIR)
-
-$(OBJDIR):
-	mkdir -p $@
-
 $(OBJDIR)/%.o: %.c
+	@mkdir -p $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 .PHONY: check
-check:
+check: ## Run unittests
 
 .PHONY: clean
-clean:
-	rm -rf $(BIN)
-	rm -rf $(OBJDIR)
+clean: ## Clean build targets
+	rm -rf $(BUILDDIR)
 
 vpath %.c src
 vpath %.h src
